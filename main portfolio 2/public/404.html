@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 | DevFanuel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0a1a 0%, #0f0f2a 50%, #1a1a3a 100%);
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        .float-animation {
+            animation: float 4s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-4xl w-full">
+        <div class="text-center mb-8">
+            <div class="text-9xl font-bold text-purple-500/20 mb-4 float-animation">404</div>
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">Lost in Space? 🚀</h1>
+            <p class="text-white/60" id="errorMessage">Loading...</p>
+        </div>
+        
+        <div class="glass-card rounded-2xl p-6 mb-8">
+            <div class="flex items-center gap-3 mb-4">
+                <i class="fas fa-link text-purple-400"></i>
+                <code class="text-white font-mono" id="requestedUrl"></code>
+            </div>
+            <div class="flex items-start gap-3">
+                <i class="fas fa-lightbulb text-yellow-500/60 mt-1"></i>
+                <p class="text-white/60 text-sm">This subdomain hasn't been launched yet. Check out our available apps below!</p>
+            </div>
+        </div>
+        
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                <i class="fas fa-rocket text-purple-400"></i>
+                Available Launchpads
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="availableApps">
+                <div class="glass-card rounded-xl p-4 animate-pulse h-24"></div>
+                <div class="glass-card rounded-xl p-4 animate-pulse h-24"></div>
+            </div>
+        </div>
+        
+        <div class="text-center">
+            <a href="/" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-white font-semibold hover:shadow-lg transition-all">
+                <i class="fas fa-home"></i>
+                Back to Hub
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        const requestedUrl = window.location.hostname;
+        document.getElementById('requestedUrl').innerHTML = `<i class="fas fa-globe mr-2"></i>${requestedUrl}`;
+        document.getElementById('errorMessage').innerHTML = `"${requestedUrl.split('.')[0]}" isn't available yet`;
+        
+        // Fetch available apps from backend
+        async function loadApps() {
+            try {
+                const response = await fetch('/api/apps');
+                const data = await response.json();
+                if (data.success && data.apps.length > 0) {
+                    const appsHtml = data.apps.map(app => `
+                        <a href="${app.url}" class="glass-card rounded-xl p-4 flex items-center gap-4 group transition-all hover:translate-x-1">
+                            <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                                <i class="fas ${app.icon} text-purple-400 text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-white group-hover:text-purple-400">${app.name}</h3>
+                                <p class="text-white/40 text-sm">${app.description.substring(0, 60)}</p>
+                            </div>
+                            <i class="fas fa-arrow-right text-white/30 group-hover:text-purple-400"></i>
+                        </a>
+                    `).join('');
+                    document.getElementById('availableApps').innerHTML = appsHtml;
+                }
+            } catch (error) {
+                console.error('Error loading apps:', error);
+            }
+        }
+        
+        loadApps();
+    </script>
+</body>
+</html>
